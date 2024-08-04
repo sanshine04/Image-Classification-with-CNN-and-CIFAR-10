@@ -1,0 +1,40 @@
+from tensorflow.keras.models import load_model
+from tensorflow.keras.preprocessing import image
+import numpy as np
+from PIL import Image
+
+# Load the trained model
+model = load_model('cifar10_cnn_model.h5')
+
+# Load and preprocess the image
+def preprocess_image(img_path):
+    # Load the image with target size 32x32
+    img = image.load_img(img_path, target_size=(32, 32))
+
+    # Convert the image to a numpy array
+    img_array = image.img_to_array(img)
+
+    # Normalize the image (scale pixel values to [0, 1])
+    img_array = img_array / 255.0
+
+    # Add a batch dimension (from (32, 32, 3) to (1, 32, 32, 3))
+    img_array = np.expand_dims(img_array, axis=0)
+    return img_array
+
+# Predict the class of the image
+def predict_image_class(img_path):
+    img_array = preprocess_image(img_path)
+    predictions = model.predict(img_array)
+    predicted_class = np.argmax(predictions)
+    return predicted_class
+
+# CIFAR-10 class names
+class_names = ['airplane', 'automobile', 'bird', 'cat', 'deer',
+               'dog', 'frog', 'horse', 'ship', 'truck']
+
+# Path to your image
+img_path = input("Enter the path to image: ")  # e.g., '/mnt/data/image.png'
+
+# Get and print the predicted class
+predicted_class = predict_image_class(img_path)
+print(f'The predicted class is: {class_names[predicted_class]}')
